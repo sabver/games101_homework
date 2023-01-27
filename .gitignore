@@ -32,7 +32,7 @@
 *.app
 
 # build
-./*/code/build/*
+*/*/build/*
 
 # vscode
 .vscode/*
