@@ -65,7 +65,7 @@ Vec3f barycentric(Vec3f A, Vec3f B, Vec3f C, Vec3f P)
  * @param image
  * @param color
  */
-void triangle(Vec3f *pts, Vec3f *texture_ps, float *zbuffer, TGAImage &image, TGAImage texture)
+void triangle(Vec3f *pts, Vec3f *texture_ps, float *zbuffer, TGAImage &image, TGAImage texture, float intensity)
 {
     // std::cout << "triangle" << std::endl;
     Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
@@ -104,7 +104,7 @@ void triangle(Vec3f *pts, Vec3f *texture_ps, float *zbuffer, TGAImage &image, TG
                 // std::cout << texture_x << " " << texture_y << " " << x << " " << y << std::endl;
                 // 得到纹理的颜色
                 TGAColor color = texture.get(x, y);
-                image.set(P.x, P.y, color);
+                image.set(P.x, P.y, TGAColor(intensity * color.r, intensity * color.g, intensity * color.b, 255));
             }
         }
     }
@@ -217,18 +217,23 @@ int main(int argc, char **argv)
     texture.flip_vertically();
 
     TGAImage image(width, height, TGAImage::RGB);
+    Vec3f light_dir(0, 0, -1);
     for (int i = 0; i < model->nfaces(); i++)
     {
         std::vector<int> face = model->face(i), face_texture = model->face_texture(i);
 
-        Vec3f pts[3], texture_ps[3];
-        for (int i = 0; i < 3; i++)
+        Vec3f pts[3], texture_ps[3], world_coords[3];
+        for (int j = 0; j < 3; j++)
         {
-            pts[i] = world2screen(model->vert(face[i]));
-            texture_ps[i] = model->vert_texture(face_texture[i]);
+            pts[j] = world2screen(model->vert(face[j]));
+            texture_ps[j] = model->vert_texture(face_texture[j]);
+            world_coords[j] = model->vert(face[j]);
         }
-        // 这里输出的图像里面不像是多个三角形组成的
-        triangle(pts, texture_ps, zbuffer, image, texture);
+        Vec3f n = cross((world_coords[2] - world_coords[0]), (world_coords[1] - world_coords[0]));
+        n.normalize();
+        float intensity = n * light_dir;
+        // 这里输出的图像里面不像是多个三角形组成的，会不会是因为没有加入光照这个要素？
+        triangle(pts, texture_ps, zbuffer, image, texture, intensity);
         // triangle_simple(pts, zbuffer, image, TGAColor(rand() % 255, rand() % 255, rand() % 255, 255));
     }
 
