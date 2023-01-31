@@ -107,6 +107,8 @@ int main(int argc, char** argv) {
                 Vec3f v = model->vert(face[j]);
                 screen_coords[j] =  Vec3f(ViewPort*Projection*ModelView*Matrix(v));
                 world_coords[j]  = v;
+                // 通常在经过mv变换之后，模型对应的normal vector应该是需要额外的转换的，这里好像没处理
+                // https://github.com/ssloy/tinyrenderer/wiki/Lesson-5:-Moving-the-camera#transformation-of-normal-vectors
                 intensity[j] = model->norm(i, j)*light_dir;
             }
             triangle(screen_coords[0], screen_coords[1], screen_coords[2], intensity[0], intensity[1], intensity[2], image, zbuffer);
