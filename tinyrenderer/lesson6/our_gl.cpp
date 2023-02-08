@@ -50,6 +50,14 @@ Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
     return Vec3f(-1,1,1); // in this case generate negative coordinates, it will be thrown away by the rasterizator
 }
 
+/**
+ * @brief 
+ * rasterizer
+ * @param pts 
+ * @param shader 
+ * @param image 
+ * @param zbuffer 
+ */
 void triangle(Vec4f *pts, IShader &shader, TGAImage &image, TGAImage &zbuffer) {
     Vec2f bboxmin( std::numeric_limits<float>::max(),  std::numeric_limits<float>::max());
     Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
@@ -63,11 +71,18 @@ void triangle(Vec4f *pts, IShader &shader, TGAImage &image, TGAImage &zbuffer) {
     TGAColor color;
     for (P.x=bboxmin.x; P.x<=bboxmax.x; P.x++) {
         for (P.y=bboxmin.y; P.y<=bboxmax.y; P.y++) {
+            // 齐次坐标系，需要除掉w
+            // c是拿到点P在三角形内部的重心坐标
+            // 这里计算方式的问题：因为三角形的坐标都是三维的，这个重心坐标的计算是以什么样的前提算的
+            // 直接建立三个方程式，一个是w1+w2+w3=1, P.x = w1*pts[0].x+w2*pts[1].x+w3*pts[2].x和P.y=......
             Vec3f c = barycentric(proj<2>(pts[0]/pts[0][3]), proj<2>(pts[1]/pts[1][3]), proj<2>(pts[2]/pts[2][3]), proj<2>(P));
+            // 这里z没有做矫正处理
             float z = pts[0][2]*c.x + pts[1][2]*c.y + pts[2][2]*c.z;
             float w = pts[0][3]*c.x + pts[1][3]*c.y + pts[2][3]*c.z;
+            // 计算depth，防止小于0的depth，min是防止有大于255的值出现，+0.5是为了向上取整
             int frag_depth = std::max(0, std::min(255, int(z/w+.5)));
             if (c.x<0 || c.y<0 || c.z<0 || zbuffer.get(P.x, P.y)[0]>frag_depth) continue;
+            // color: 引用类型在fragment方法里面被计算出来
             bool discard = shader.fragment(c, color);
             if (!discard) {
                 zbuffer.set(P.x, P.y, TGAColor(frag_depth));

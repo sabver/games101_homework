@@ -32,6 +32,13 @@ struct GouraudShader : public IShader {
     }
 };
 
+/**
+ * @brief 
+ * primitive processing routine
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char** argv) {
     if (2==argc) {
         model = new Model(argv[1]);
