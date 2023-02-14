@@ -43,7 +43,8 @@ struct Shader : public IShader {
         // 这里感觉不是很真实，shadow只是来修正颜色的深浅，微妙
         // DepthShader生成的深度图像里面，确实看不到的地方是没有光的，也就是说对应的那个位置的被其他的点的深度给挡住了，也就是说shadowbuffer[idx]>sb_p[2]
         // 但是为什么要加上0.3? 模拟了自然光的效果？
-        float shadow = .3+.7*(shadowbuffer[idx]<sb_p[2]); // magic coeff to avoid z-fighting
+        // float shadow = .3+.7*(shadowbuffer[idx]<sb_p[2]); // magic coeff to avoid z-fighting
+        float shadow = .3+.7*(shadowbuffer[idx]<sb_p[2]+43.34); // magic coeff to avoid z-fighting
 
         // 现在处理的都是对于一个模型进行渲染，所以纹理和模型的坐标系是统一的
         // varying_uv对应的是当前三角形的uv坐标，所以可以直接用重心坐标做插值处理
