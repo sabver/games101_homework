@@ -5,6 +5,13 @@
 #include <vector>
 #include "geometry.h"
 
+struct Light
+{
+    Light(const Vec3f &p, const float &i) : position(p), intensity(i) {}
+    Vec3f position;
+    float intensity;
+};
+
 struct Material
 {
     Material(const Vec3f &color) : diffuse_color(color) {}
@@ -65,8 +72,10 @@ bool scene_intersect(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphe
     return spheres_dist < 1000;
 }
 
-Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &spheres)
+Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &spheres, const std::vector<Light> &lights)
 {
+    // point is hit point
+    // N = (hit - spheres[i].center).normalize();
     Vec3f point, N;
     Material material;
 
@@ -75,10 +84,17 @@ Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &s
         return Vec3f(0.2, 0.7, 0.8); // background color
     }
 
-    return material.diffuse_color;
+    float diffuse_light_intensity = 0;
+    for (size_t i = 0; i < lights.size(); i++)
+    {
+        Vec3f light_dir = (lights[i].position - point).normalize();
+        // 光的入射角度和从圆心射出道交集点的向量的点乘
+        diffuse_light_intensity += lights[i].intensity * std::max(0.f, light_dir * N);
+    }
+    return material.diffuse_color * diffuse_light_intensity;
 }
 
-void render(const std::vector<Sphere> &spheres)
+void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights)
 {
     const int width = 1024;
     const int height = 768;
@@ -94,7 +110,7 @@ void render(const std::vector<Sphere> &spheres)
             float y = -(2 * (j + 0.5) / (float)height - 1) * tan(fov / 2.);
             // 这里必须要正则化
             Vec3f dir = Vec3f(x, y, -1).normalize();
-            framebuffer[i + j * width] = cast_ray(Vec3f(0, 0, 0), dir, spheres);
+            framebuffer[i + j * width] = cast_ray(Vec3f(0, 0, 0), dir, spheres, lights);
         }
     }
 
@@ -124,6 +140,9 @@ int main()
     spheres.push_back(Sphere(Vec3f(1.5, -0.5, -18), 3, red_rubber));
     spheres.push_back(Sphere(Vec3f(7, 5, -18), 4, ivory));
 
-    render(spheres);
+    std::vector<Light> lights;
+    lights.push_back(Light(Vec3f(-20, 20, 20), 1.5));
+
+    render(spheres, lights);
     return 0;
 }
