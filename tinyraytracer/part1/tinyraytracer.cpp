@@ -96,6 +96,17 @@ Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &s
     {
         Vec3f light_dir = (lights[i].position - point).normalize();
 
+        // 在绘制每个点时，我们只需确保当前点和光源之间的线段不与场景中的物体相交。如果有相交，我们就跳过当前的光源。只有一个小的微妙之处：我通过在法线方向上移动点来扰动它。
+        float light_distance = (lights[i].position - point).norm();
+        // 为什么会这样呢？只是我们的点位于物体的表面，（除了数字误差的问题）从这个点出发的任何射线都会与物体本身相交。
+        // 为什么这里需要做一点修正呢？为什么light_dir * N < 0就point - N * 1e-3？
+        Vec3f shadow_orig = light_dir * N < 0 ? point - N * 1e-3 : point + N * 1e-3; // checking if the point lies in the shadow of the lights[i]
+        Vec3f shadow_pt, shadow_N;
+        Material tmpmaterial;
+        // 从shadow_orig沿着light_dir出发，如果遇到其他物体，那么shadow_pt会有值，导致shadow_pt - shadow_orig的距离会比light_distance短
+        if (scene_intersect(shadow_orig, light_dir, spheres, shadow_pt, shadow_N, tmpmaterial) && (shadow_pt - shadow_orig).norm() < light_distance)
+            continue;
+
         // 光的入射角度和从圆心射出道交集点的向量的点乘
         diffuse_light_intensity += lights[i].intensity * std::max(0.f, light_dir * N);
         // Ls = ks (I/r2) max(0, cos<>)^p, 这个版本里面没有前面的ks(I/r2)这块
@@ -156,6 +167,7 @@ int main()
     spheres.push_back(Sphere(Vec3f(7, 5, -18), 4, ivory));
 
     std::vector<Light> lights;
+    lights.push_back(Light(Vec3f(-20, 20, 20), 1.5));
     lights.push_back(Light(Vec3f(30, 50, -25), 1.8));
     lights.push_back(Light(Vec3f(30, 20, 30), 1.7));
 
