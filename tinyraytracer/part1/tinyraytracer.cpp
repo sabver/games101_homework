@@ -14,9 +14,10 @@ struct Light
 
 struct Material
 {
-    Material(const Vec2f &a, const Vec3f &color, const float &spec) : albedo(a), diffuse_color(color), specular_exponent(spec) {}
-    Material() : albedo(1, 0), diffuse_color(), specular_exponent() {}
-    Vec2f albedo;
+    Material(const Vec3f &a, const Vec3f &color, const float &spec) : albedo(a), diffuse_color(color), specular_exponent(spec) {}
+    // albedo[2]是镜子材质的影响因子
+    Material() : albedo(1, 0, 0), diffuse_color(), specular_exponent() {}
+    Vec3f albedo;
     Vec3f diffuse_color;
     float specular_exponent;
 };
@@ -79,17 +80,24 @@ bool scene_intersect(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphe
     return spheres_dist < 1000;
 }
 
-Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &spheres, const std::vector<Light> &lights)
+Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &spheres, const std::vector<Light> &lights, size_t depth = 0)
 {
     // point is hit point
     // N = (hit - spheres[i].center).normalize();
     Vec3f point, N;
     Material material;
 
-    if (!scene_intersect(orig, dir, spheres, point, N, material))
+    if (depth > 4 || !scene_intersect(orig, dir, spheres, point, N, material))
     {
         return Vec3f(0.2, 0.7, 0.8); // background color
     }
+
+    Vec3f reflect_dir = reflect(dir, N).normalize();
+    // offset the original point to avoid occlusion by the object itself
+    // 偏移原点，以避免被物体本身遮挡
+    // 这里如果直接reflect_orig = point的话，镜面上会出现很多黑点，why？
+    Vec3f reflect_orig = reflect_dir * N < 0 ? point - N * 1e-3 : point + N * 1e-3;
+    Vec3f reflect_color = cast_ray(reflect_orig, reflect_dir, spheres, lights, depth + 1);
 
     float diffuse_light_intensity = 0, specular_light_intensity = 0;
     for (size_t i = 0; i < lights.size(); i++)
@@ -112,7 +120,8 @@ Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &s
         // Ls = ks (I/r2) max(0, cos<>)^p, 这个版本里面没有前面的ks(I/r2)这块
         specular_light_intensity += powf(std::max(0.f, -reflect(-light_dir, N) * dir), material.specular_exponent) * lights[i].intensity;
     }
-    return material.diffuse_color * diffuse_light_intensity * material.albedo[0] + Vec3f(1., 1., 1.) * specular_light_intensity * material.albedo[1];
+    return material.diffuse_color * diffuse_light_intensity * material.albedo[0] + Vec3f(1., 1., 1.) * specular_light_intensity * material.albedo[1] + reflect_color * material.albedo[2];
+    ;
 }
 
 void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights)
@@ -157,14 +166,15 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
 
 int main()
 {
-    Material ivory(Vec2f(0.6, 0.3), Vec3f(0.4, 0.4, 0.3), 50.);
-    Material red_rubber(Vec2f(0.9, 0.1), Vec3f(0.3, 0.1, 0.1), 10.);
+    Material ivory(Vec3f(0.6, 0.3, 0.1), Vec3f(0.4, 0.4, 0.3), 50.);
+    Material red_rubber(Vec3f(0.9, 0.1, 0.0), Vec3f(0.3, 0.1, 0.1), 10.);
+    Material mirror(Vec3f(0.0, 10.0, 0.8), Vec3f(1.0, 1.0, 1.0), 1425.);
 
     std::vector<Sphere> spheres;
     spheres.push_back(Sphere(Vec3f(-3, 0, -16), 2, ivory));
-    spheres.push_back(Sphere(Vec3f(-1.0, -1.5, -12), 2, red_rubber));
+    spheres.push_back(Sphere(Vec3f(-1.0, -1.5, -12), 2, mirror));
     spheres.push_back(Sphere(Vec3f(1.5, -0.5, -18), 3, red_rubber));
-    spheres.push_back(Sphere(Vec3f(7, 5, -18), 4, ivory));
+    spheres.push_back(Sphere(Vec3f(7, 5, -18), 4, mirror));
 
     std::vector<Light> lights;
     lights.push_back(Light(Vec3f(-20, 20, 20), 1.5));
