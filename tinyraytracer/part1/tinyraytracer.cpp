@@ -99,7 +99,26 @@ bool scene_intersect(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphe
             material = spheres[i].material;
         }
     }
-    return spheres_dist < 1000;
+
+    float checkerboard_dist = std::numeric_limits<float>::max();
+    if (fabs(dir.y) > 1e-3)
+    {
+        // 计算相遇时间 (-4 - orig.y) / dir.y 距离除速度
+        float d = -(orig.y + 4) / dir.y; // the checkerboard plane has equation y = -4
+        Vec3f pt = orig + dir * d;
+        // d是遇到checkerboard的时间，d小于spheres_dist的时候，也就是光先碰到checkerboard的意思
+        if (d > 0 && fabs(pt.x) < 10 && pt.z < -10 && pt.z > -30 && d < spheres_dist)
+        {
+            checkerboard_dist = d;
+            hit = pt;
+            N = Vec3f(0, 1, 0);
+            // 不太明白这里怎么做成一个checkerboard的
+            // int只要是个奇数那么就是白色
+            material.diffuse_color = (int(.5 * hit.x + 1000) + int(.5 * hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(1, .7, .3);
+            material.diffuse_color = material.diffuse_color * .3;
+        }
+    }
+    return std::min(spheres_dist, checkerboard_dist) < 1000;
 }
 
 Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &spheres, const std::vector<Light> &lights, size_t depth = 0)
@@ -149,8 +168,7 @@ Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &s
         // Ls = ks (I/r2) max(0, cos<>)^p, 这个版本里面没有前面的ks(I/r2)这块
         specular_light_intensity += powf(std::max(0.f, -reflect(-light_dir, N) * dir), material.specular_exponent) * lights[i].intensity;
     }
-    // reflect_color * material.albedo[2] + refract_color * material.albedo[3];
-    return material.diffuse_color * diffuse_light_intensity * material.albedo[0] + Vec3f(1., 1., 1.) * specular_light_intensity * material.albedo[1];
+    return material.diffuse_color * diffuse_light_intensity * material.albedo[0] + Vec3f(1., 1., 1.) * specular_light_intensity * material.albedo[1] + reflect_color * material.albedo[2] + refract_color * material.albedo[3];
 }
 
 void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights)
