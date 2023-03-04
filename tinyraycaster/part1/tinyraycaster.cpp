@@ -2,6 +2,8 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 #include <cstdint>
 #include <cassert>
@@ -43,7 +45,8 @@ void draw_rectangle(std::vector<uint32_t> &img, const size_t img_w, const size_t
         {
             size_t cx = x + i;
             size_t cy = y + j;
-            assert(cx < img_w && cy < img_h);
+            if (cx >= img_w || cy >= img_h)
+                continue; // no need to check for negative values (unsigned variables)
             img[cx + cy * img_w] = color;
         }
     }
@@ -51,9 +54,9 @@ void draw_rectangle(std::vector<uint32_t> &img, const size_t img_w, const size_t
 
 int main()
 {
-    const size_t win_w = 512;                              // image width
-    const size_t win_h = 512;                              // image height
-    std::vector<uint32_t> framebuffer(win_w * win_h, 255); // the image itself, initialized to white
+    const size_t win_w = 1024;                                                   // image width
+    const size_t win_h = 512;                                                    // image height
+    std::vector<uint32_t> framebuffer(win_w * win_h, pack_color(255, 255, 255)); // the image itself, initialized to white
 
     const size_t map_w = 16; // map width
     const size_t map_h = 16; // map height
@@ -80,52 +83,65 @@ int main()
     float player_a = 1.523;      // player view direction
     const float fov = M_PI / 3.; // field of view
 
-    for (size_t j = 0; j < win_h; j++)
-    { // fill the screen with color gradients
-        for (size_t i = 0; i < win_w; i++)
-        {
-            uint8_t r = 255 * j / float(win_h); // varies between 0 and 255 as j sweeps the vertical
-            uint8_t g = 255 * i / float(win_w); // varies between 0 and 255 as i sweeps the horizontal
-            uint8_t b = 0;
-            framebuffer[i + j * win_w] = pack_color(r, g, b);
-        }
+    const size_t ncolors = 10;
+    std::vector<uint32_t> colors(ncolors);
+    for (size_t i = 0; i < ncolors; i++)
+    {
+        colors[i] = pack_color(rand() % 255, rand() % 255, rand() % 255);
     }
 
-    const size_t rect_w = win_w / map_w;
+    const size_t rect_w = win_w / (map_w * 2);
     const size_t rect_h = win_h / map_h;
-    for (size_t j = 0; j < map_h; j++)
-    { // draw the map
-        for (size_t i = 0; i < map_w; i++)
-        {
-            if (map[i + j * map_w] == ' ')
-                continue; // skip empty spaces
-            size_t rect_x = i * rect_w;
-            size_t rect_y = j * rect_h;
-            draw_rectangle(framebuffer, win_w, win_h, rect_x, rect_y, rect_w, rect_h, pack_color(0, 255, 255));
+    for (size_t frame = 0; frame < 360; frame++)
+    {
+        std::stringstream ss;
+        ss << std::setfill('0') << std::setw(5) << frame << ".ppm";
+        player_a += 2 * M_PI / 360;
+
+        framebuffer = std::vector<uint32_t>(win_w * win_h, pack_color(255, 255, 255)); // clear the screen
+
+        for (size_t j = 0; j < map_h; j++)
+        { // draw the map
+            for (size_t i = 0; i < map_w; i++)
+            {
+                if (map[i + j * map_w] == ' ')
+                    continue; // skip empty spaces
+                size_t rect_x = i * rect_w;
+                size_t rect_y = j * rect_h;
+                size_t icolor = map[i + j * map_w] - '0';
+                assert(icolor < ncolors);
+                draw_rectangle(framebuffer, win_w, win_h, rect_x, rect_y, rect_w, rect_h, colors[icolor]);
+            }
         }
-    }
 
-    // draw the player on the map
-    draw_rectangle(framebuffer, win_w, win_h, player_x * rect_w, player_y * rect_h, 5, 5, pack_color(255, 255, 255));
+        // draw the player on the map
+        draw_rectangle(framebuffer, win_w, win_h, player_x * rect_w, player_y * rect_h, 5, 5, pack_color(255, 255, 255));
 
-    for (size_t i = 0; i < win_w; i++)
-    { // draw the visibility cone
-        // 把fov分为win_w份，然后每次从右旋转到左边
-        float angle = player_a - fov / 2 + fov * i / float(win_w);
-        for (float t = 0; t < 20; t += .05)
-        {
-            float cx = player_x + t * cos(angle);
-            float cy = player_y + t * sin(angle);
-            if (map[int(cx) + int(cy) * map_w] != ' ')
-                break;
+        for (size_t i = 0; i < win_w / 2; i++)
+        { // draw the visibility cone
+            // 把fov分为win_w份，然后每次从右旋转到左边
+            float angle = player_a - fov / 2 + fov * i / float(win_w / 2);
+            for (float t = 0; t < 20; t += .15)
+            {
+                float cx = player_x + t * cos(angle);
+                float cy = player_y + t * sin(angle);
 
-            size_t pix_x = cx * rect_w;
-            size_t pix_y = cy * rect_h;
-            framebuffer[pix_x + pix_y * win_w] = pack_color(255, 255, 255);
+                size_t pix_x = cx * rect_w;
+                size_t pix_y = cy * rect_h;
+                framebuffer[pix_x + pix_y * win_w] = pack_color(160, 160, 160);
+                if (map[int(cx) + int(cy) * map_w] != ' ')
+                { // our ray touches a wall, so draw the vertical column to create an illusion of 3D
+                    size_t icolor = map[int(cx) + int(cy) * map_w] - '0';
+                    assert(icolor < ncolors);
+                    // 创造简单的近大远小效果
+                    size_t column_height = win_h / t;
+                    draw_rectangle(framebuffer, win_w, win_h, win_w / 2 + i, win_h / 2 - column_height / 2, 1, column_height, colors[icolor]);
+                    break;
+                }
+            }
         }
+        drop_ppm_image(ss.str(), framebuffer, win_w, win_h);
     }
-
-    drop_ppm_image("./out.ppm", framebuffer, win_w, win_h);
 
     return 0;
 }
