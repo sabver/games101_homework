@@ -121,6 +121,7 @@ int main()
         { // draw the visibility cone
             // 把fov分为win_w份，然后每次从右旋转到左边
             float angle = player_a - fov / 2 + fov * i / float(win_w / 2);
+            // t是沿着angle的前进距离，所以后面float cx = player_x + t * cos(angle);
             for (float t = 0; t < 20; t += .15)
             {
                 float cx = player_x + t * cos(angle);
@@ -134,7 +135,10 @@ int main()
                     size_t icolor = map[int(cx) + int(cy) * map_w] - '0';
                     assert(icolor < ncolors);
                     // 创造简单的近大远小效果
-                    size_t column_height = win_h / t;
+                    // size_t column_height = win_h / t;
+                    // 这里angle - player_a是等于angle和垂直线的夹角，然后cos(angle - player_a)=垂直线的距离（从相机到墙壁）
+                    // (t * cos(angle - player_a)就是让本次fov视角里面所有的墙的高度都统一了，因为垂直线的距离都是一样的
+                    size_t column_height = win_h / (t * cos(angle - player_a));
                     draw_rectangle(framebuffer, win_w, win_h, win_w / 2 + i, win_h / 2 - column_height / 2, 1, column_height, colors[icolor]);
                     break;
                 }
