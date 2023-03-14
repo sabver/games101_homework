@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <cstdint>
 #include <cassert>
@@ -45,9 +46,8 @@ void draw_sprite(Sprite &sprite, std::vector<float> &depth_buffer, FrameBuffer &
     while (sprite_dir - player.a < -M_PI)
         sprite_dir += 2 * M_PI;
 
-    float sprite_dist = std::sqrt(pow(player.x - sprite.x, 2) + pow(player.y - sprite.y, 2)); // distance from the player to the sprite
     // 利用近大远小的效果来估算sprite的宽度
-    size_t sprite_screen_size = std::min(1000, static_cast<int>(fb.h / sprite_dist)); // screen sprite size
+    size_t sprite_screen_size = std::min(1000, static_cast<int>(fb.h / sprite.player_dist)); // screen sprite size
     // h_offset和v_offset给出了精灵的左上角的屏幕坐标
     // 为什么是- tex_sprites.size / 2 而不是 - sprite_screen_size / 2
     int h_offset = (sprite_dir - player.a) / player.fov * (fb.w / 2) + (fb.w / 2) / 2 - tex_sprites.size / 2; // do not forget the 3D view takes only a half of the framebuffer
@@ -58,7 +58,7 @@ void draw_sprite(Sprite &sprite, std::vector<float> &depth_buffer, FrameBuffer &
     {
         if (h_offset + int(i) < 0 || h_offset + i >= fb.w / 2)
             continue;
-        if (depth_buffer[h_offset + i] < sprite_dist)
+        if (depth_buffer[h_offset + i] < sprite.player_dist)
             continue; // this sprite column is occluded
         for (size_t j = 0; j < sprite_screen_size; j++)
         {
@@ -125,8 +125,15 @@ void render(FrameBuffer &fb, Map &map, Player &player, std::vector<Sprite> &spri
             break;
         } // ray marching loop
     }     // field of view ray sweeping
+    
     for (size_t i = 0; i < sprites.size(); i++)
-    {
+    { // update the distances from the player to each sprite
+        sprites[i].player_dist = std::sqrt(pow(player.x - sprites[i].x, 2) + pow(player.y - sprites[i].y, 2));
+    }
+    std::sort(sprites.begin(), sprites.end()); // sort it from farthest to closest
+
+    for (size_t i = 0; i < sprites.size(); i++)
+    { // draw the sprites
         map_show_sprite(sprites[i], fb, map);
         draw_sprite(sprites[i], depth_buffer, fb, player, tex_monst);
     }
