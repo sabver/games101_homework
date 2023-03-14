@@ -36,7 +36,7 @@ void map_show_sprite(Sprite &sprite, FrameBuffer &fb, Map &map)
     fb.draw_rectangle(sprite.x * rect_w - 3, sprite.y * rect_h - 3, 6, 6, pack_color(255, 0, 0));
 }
 
-void draw_sprite(Sprite &sprite, FrameBuffer &fb, Player &player, Texture &tex_sprites)
+void draw_sprite(Sprite &sprite, std::vector<float> &depth_buffer, FrameBuffer &fb, Player &player, Texture &tex_sprites)
 {
     // absolute direction from the player to the sprite (in radians)
     float sprite_dir = atan2(sprite.y - player.y, sprite.x - player.x);
@@ -47,7 +47,7 @@ void draw_sprite(Sprite &sprite, FrameBuffer &fb, Player &player, Texture &tex_s
 
     float sprite_dist = std::sqrt(pow(player.x - sprite.x, 2) + pow(player.y - sprite.y, 2)); // distance from the player to the sprite
     // 利用近大远小的效果来估算sprite的宽度
-    size_t sprite_screen_size = std::min(1000, static_cast<int>(fb.h / sprite_dist));         // screen sprite size
+    size_t sprite_screen_size = std::min(1000, static_cast<int>(fb.h / sprite_dist)); // screen sprite size
     // h_offset和v_offset给出了精灵的左上角的屏幕坐标
     // 为什么是- tex_sprites.size / 2 而不是 - sprite_screen_size / 2
     int h_offset = (sprite_dir - player.a) / player.fov * (fb.w / 2) + (fb.w / 2) / 2 - tex_sprites.size / 2; // do not forget the 3D view takes only a half of the framebuffer
@@ -56,13 +56,19 @@ void draw_sprite(Sprite &sprite, FrameBuffer &fb, Player &player, Texture &tex_s
 
     for (size_t i = 0; i < sprite_screen_size; i++)
     {
-        if (h_offset + i < 0 || h_offset + i >= fb.w / 2)
+        if (h_offset + int(i) < 0 || h_offset + i >= fb.w / 2)
             continue;
+        if (depth_buffer[h_offset + i] < sprite_dist)
+            continue; // this sprite column is occluded
         for (size_t j = 0; j < sprite_screen_size; j++)
         {
-            if (v_offset + j < 0 || v_offset + j >= fb.h)
+            if (v_offset + int(j) < 0 || v_offset + j >= fb.h)
                 continue;
-            fb.set_pixel(fb.w / 2 + h_offset + i, v_offset + j, pack_color(0, 0, 0));
+            uint32_t color = tex_sprites.get(i * tex_sprites.size / sprite_screen_size, j * tex_sprites.size / sprite_screen_size, sprite.tex_id);
+            uint8_t r, g, b, a;
+            unpack_color(color, r, g, b, a);
+            if (a > 128)
+                fb.set_pixel(fb.w / 2 + h_offset + i, v_offset + j, color);
         }
     }
 }
@@ -86,7 +92,7 @@ void render(FrameBuffer &fb, Map &map, Player &player, std::vector<Sprite> &spri
             fb.draw_rectangle(rect_x, rect_y, rect_w, rect_h, tex_walls.get(0, 0, texid)); // the color is taken from the upper left pixel of the texture #texid
         }
     }
-
+    std::vector<float> depth_buffer(fb.w / 2, 1e3);
     for (size_t i = 0; i < fb.w / 2; i++)
     { // draw the visibility cone AND the "3D" view
         float angle = player.a - player.fov / 2 + player.fov * i / float(fb.w / 2);
@@ -103,6 +109,7 @@ void render(FrameBuffer &fb, Map &map, Player &player, std::vector<Sprite> &spri
             assert(texid < tex_walls.count);
             // size_t column_height = fb.h / (t * cos(angle - player.a));
             float dist = t * cos(angle - player.a);
+            depth_buffer[i] = dist;
             size_t column_height = fb.h / dist;
             int x_texcoord = wall_x_texcoord(x, y, tex_walls);
             std::vector<uint32_t> column = tex_walls.get_scaled_column(texid, x_texcoord, column_height);
@@ -121,7 +128,7 @@ void render(FrameBuffer &fb, Map &map, Player &player, std::vector<Sprite> &spri
     for (size_t i = 0; i < sprites.size(); i++)
     {
         map_show_sprite(sprites[i], fb, map);
-        draw_sprite(sprites[i], fb, player, tex_monst);
+        draw_sprite(sprites[i], depth_buffer, fb, player, tex_monst);
     }
 }
 
