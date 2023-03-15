@@ -110,3 +110,17 @@ make: *** [cmTC_bd100/fast] Error 2
 Source file was:
 int main() { return 0; }
 
+Performing C++ SOURCE FILE Test flag_supported failed with the following output:
+Change Dir: /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-eUw59q
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_5506b/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_5506b.dir/build.make CMakeFiles/cmTC_5506b.dir/build
+Building CXX object CMakeFiles/cmTC_5506b.dir/src.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/c++ -Dflag_supported  -Wall -Wextra -pedantic -std=c++11 -O3  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk   -fopenmp -MD -MT CMakeFiles/cmTC_5506b.dir/src.cxx.o -MF CMakeFiles/cmTC_5506b.dir/src.cxx.o.d -o CMakeFiles/cmTC_5506b.dir/src.cxx.o -c /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-eUw59q/src.cxx
+clang: error: unsupported option '-fopenmp'
+make[1]: *** [CMakeFiles/cmTC_5506b.dir/src.cxx.o] Error 1
+make: *** [cmTC_5506b/fast] Error 2
+
+
+Source file was:
+int main() { return 0; }
+
