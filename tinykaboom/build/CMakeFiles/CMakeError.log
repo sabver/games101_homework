@@ -1,0 +1,28 @@
+Performing C++ SOURCE FILE Test flag_supported failed with the following output:
+Change Dir: /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-mou60q
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_fbcac/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_fbcac.dir/build.make CMakeFiles/cmTC_fbcac.dir/build
+Building CXX object CMakeFiles/cmTC_fbcac.dir/src.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/c++ -Dflag_supported  -Wall -Wextra -pedantic -std=c++11 -O3  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk   -fopenmp -MD -MT CMakeFiles/cmTC_fbcac.dir/src.cxx.o -MF CMakeFiles/cmTC_fbcac.dir/src.cxx.o.d -o CMakeFiles/cmTC_fbcac.dir/src.cxx.o -c /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-mou60q/src.cxx
+clang: error: unsupported option '-fopenmp'
+make[1]: *** [CMakeFiles/cmTC_fbcac.dir/src.cxx.o] Error 1
+make: *** [cmTC_fbcac/fast] Error 2
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C++ SOURCE FILE Test flag_supported failed with the following output:
+Change Dir: /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-Y58fXk
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_d94a9/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_d94a9.dir/build.make CMakeFiles/cmTC_d94a9.dir/build
+Building CXX object CMakeFiles/cmTC_d94a9.dir/src.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/c++ -Dflag_supported  -Wall -Wextra -pedantic -std=c++11 -O3  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk   -fopenmp -MD -MT CMakeFiles/cmTC_d94a9.dir/src.cxx.o -MF CMakeFiles/cmTC_d94a9.dir/src.cxx.o.d -o CMakeFiles/cmTC_d94a9.dir/src.cxx.o -c /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-Y58fXk/src.cxx
+clang: error: unsupported option '-fopenmp'
+make[1]: *** [CMakeFiles/cmTC_d94a9.dir/src.cxx.o] Error 1
+make: *** [cmTC_d94a9/fast] Error 2
+
+
+Source file was:
+int main() { return 0; }
+

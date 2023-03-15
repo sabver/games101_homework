@@ -1,0 +1,3 @@
+/Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/tinykaboom.dir
+/Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/edit_cache.dir
+/Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/rebuild_cache.dir
