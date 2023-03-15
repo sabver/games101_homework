@@ -14,8 +14,11 @@ float signed_distance(const Vec3f &p)
 {
     // return p.norm() - sphere_radius;
     // displacement mapping
-    Vec3f s = Vec3f(p).normalize(sphere_radius);
-    float displacement = sin(16 * s.x) * sin(16 * s.y) * sin(16 * s.z) * noise_amplitude;
+    // Vec3f s = Vec3f(p).normalize(sphere_radius);
+    // float displacement = sin(16 * s.x) * sin(16 * s.y) * sin(16 * s.z) * noise_amplitude;
+
+    // draw disconnected components
+    float displacement = sin(16*p.x)*sin(16*p.y)*sin(16*p.z)*noise_amplitude;
     return p.norm() - (sphere_radius + displacement);
 }
 /**
