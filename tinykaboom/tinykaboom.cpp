@@ -8,10 +8,15 @@
 #include "geometry.h"
 
 const float sphere_radius = 1.5;
+const float noise_amplitude = 0.2;
 
 float signed_distance(const Vec3f &p)
 {
-    return p.norm() - sphere_radius;
+    // return p.norm() - sphere_radius;
+    // displacement mapping
+    Vec3f s = Vec3f(p).normalize(sphere_radius);
+    float displacement = sin(16 * s.x) * sin(16 * s.y) * sin(16 * s.z) * noise_amplitude;
+    return p.norm() - (sphere_radius + displacement);
 }
 /**
  * @brief
@@ -71,8 +76,7 @@ int main()
             {                                                            // the camera is placed to (0,0,3) and it looks along the -z axis
                 Vec3f light_dir = (Vec3f(10, 10, 10) - hit).normalize(); // one light is placed to (10,10,10)
                 float light_intensity = std::max(0.4f, light_dir * distance_field_normal(hit));
-                float displacement = (sin(16 * hit.x) * sin(16 * hit.y) * sin(16 * hit.z) + 1.) / 2.;
-                framebuffer[i + j * width] = Vec3f(1, 1, 1) * displacement * light_intensity;
+                framebuffer[i + j * width] = Vec3f(1, 1, 1) * light_intensity;
             }
             else
             {
