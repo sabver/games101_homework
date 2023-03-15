@@ -474,3 +474,73 @@ Linking CXX executable cmTC_aa7ba
 Source file was:
 int main() { return 0; }
 
+Performing C++ SOURCE FILE Test flag_supported succeeded with the following output:
+Change Dir: /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-f2ragF
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_499d6/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_499d6.dir/build.make CMakeFiles/cmTC_499d6.dir/build
+Building CXX object CMakeFiles/cmTC_499d6.dir/src.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/c++ -Dflag_supported  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk   -Wall -MD -MT CMakeFiles/cmTC_499d6.dir/src.cxx.o -MF CMakeFiles/cmTC_499d6.dir/src.cxx.o.d -o CMakeFiles/cmTC_499d6.dir/src.cxx.o -c /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-f2ragF/src.cxx
+Linking CXX executable cmTC_499d6
+/usr/local/Cellar/cmake/3.25.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_499d6.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/c++  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_499d6.dir/src.cxx.o -o cmTC_499d6 
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C++ SOURCE FILE Test flag_supported succeeded with the following output:
+Change Dir: /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-HOCzg5
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_6a5da/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_6a5da.dir/build.make CMakeFiles/cmTC_6a5da.dir/build
+Building CXX object CMakeFiles/cmTC_6a5da.dir/src.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/c++ -Dflag_supported  -Wall  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk   -Wextra -MD -MT CMakeFiles/cmTC_6a5da.dir/src.cxx.o -MF CMakeFiles/cmTC_6a5da.dir/src.cxx.o.d -o CMakeFiles/cmTC_6a5da.dir/src.cxx.o -c /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-HOCzg5/src.cxx
+Linking CXX executable cmTC_6a5da
+/usr/local/Cellar/cmake/3.25.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6a5da.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/c++  -Wall  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_6a5da.dir/src.cxx.o -o cmTC_6a5da 
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C++ SOURCE FILE Test flag_supported succeeded with the following output:
+Change Dir: /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-v1DMHz
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_a22cb/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_a22cb.dir/build.make CMakeFiles/cmTC_a22cb.dir/build
+Building CXX object CMakeFiles/cmTC_a22cb.dir/src.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/c++ -Dflag_supported  -Wall -Wextra  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk   -pedantic -MD -MT CMakeFiles/cmTC_a22cb.dir/src.cxx.o -MF CMakeFiles/cmTC_a22cb.dir/src.cxx.o.d -o CMakeFiles/cmTC_a22cb.dir/src.cxx.o -c /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-v1DMHz/src.cxx
+Linking CXX executable cmTC_a22cb
+/usr/local/Cellar/cmake/3.25.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a22cb.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/c++  -Wall -Wextra  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_a22cb.dir/src.cxx.o -o cmTC_a22cb 
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C++ SOURCE FILE Test flag_supported succeeded with the following output:
+Change Dir: /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-JcvrKv
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_91555/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_91555.dir/build.make CMakeFiles/cmTC_91555.dir/build
+Building CXX object CMakeFiles/cmTC_91555.dir/src.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/c++ -Dflag_supported  -Wall -Wextra -pedantic  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk   -std=c++11 -MD -MT CMakeFiles/cmTC_91555.dir/src.cxx.o -MF CMakeFiles/cmTC_91555.dir/src.cxx.o.d -o CMakeFiles/cmTC_91555.dir/src.cxx.o -c /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-JcvrKv/src.cxx
+Linking CXX executable cmTC_91555
+/usr/local/Cellar/cmake/3.25.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_91555.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/c++  -Wall -Wextra -pedantic  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_91555.dir/src.cxx.o -o cmTC_91555 
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C++ SOURCE FILE Test flag_supported succeeded with the following output:
+Change Dir: /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-KnbCOr
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_90fdd/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_90fdd.dir/build.make CMakeFiles/cmTC_90fdd.dir/build
+Building CXX object CMakeFiles/cmTC_90fdd.dir/src.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/c++ -Dflag_supported  -Wall -Wextra -pedantic -std=c++11  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk   -O3 -MD -MT CMakeFiles/cmTC_90fdd.dir/src.cxx.o -MF CMakeFiles/cmTC_90fdd.dir/src.cxx.o.d -o CMakeFiles/cmTC_90fdd.dir/src.cxx.o -c /Users/yejianfeng/Desktop/code/games101/tinykaboom/build/CMakeFiles/CMakeScratch/TryCompile-KnbCOr/src.cxx
+Linking CXX executable cmTC_90fdd
+/usr/local/Cellar/cmake/3.25.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_90fdd.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/c++  -Wall -Wextra -pedantic -std=c++11  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_90fdd.dir/src.cxx.o -o cmTC_90fdd 
+
+
+Source file was:
+int main() { return 0; }
+
