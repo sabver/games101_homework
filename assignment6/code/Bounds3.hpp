@@ -91,15 +91,6 @@ public:
                            const std::array<int, 3> &dirisNeg) const;
 };
 
-/**
- * @brief 
- * 
- * @param ray 
- * @param invDir 
- * @param dirIsNeg ??怎么用这个值去简化逻辑
- * @return true 
- * @return false 
- */
 inline bool Bounds3::IntersectP(const Ray &ray, const Vector3f &invDir,
                                 const std::array<int, 3> &dirIsNeg) const
 {
@@ -107,8 +98,21 @@ inline bool Bounds3::IntersectP(const Ray &ray, const Vector3f &invDir,
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
     Vector3f tmin = (pMin - ray.origin) * invDir, tmax = (pMax - ray.origin) * invDir;
+    if (dirIsNeg[0])
+    {
+        std::swap(tmin.x, tmax.x);
+    }
+    if (dirIsNeg[1])
+    {
+        std::swap(tmin.y, tmax.y);
+    }
+    if (dirIsNeg[2])
+    {
+        std::swap(tmin.z, tmax.z);
+    }
     float tenter = fmax(fmax(tmin.x, tmin.y), tmin.z), texit = fmin(fmin(tmax.x, tmax.y), tmax.z);
-    if( tenter < texit && texit >= 0 ){
+    if (tenter < texit && texit >= 0)
+    {
         return true;
     }
     return false;
