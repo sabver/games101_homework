@@ -44,6 +44,13 @@ public:
 
         return true;
     }
+    /**
+     * @brief Get the Intersection object
+     * 虽然这里是求一个球体和光线的交点，但是还是可以简化为一个平面上光线和圆的交点
+     * 可以理解为以ray.origin - center和ray组成的平面上求一个光线和圆的交点
+     * @param ray 
+     * @return Intersection 
+     */
     Intersection getIntersection(Ray ray){
         Intersection result;
         result.happened = false;

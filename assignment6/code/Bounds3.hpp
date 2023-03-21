@@ -11,7 +11,8 @@
 
 class Bounds3
 {
-  public:
+public:
+    // 每个二维的空间里面都只需要两个点去划分一个box出来
     Vector3f pMin, pMax; // two points to specify the bounding box
     Bounds3()
     {
@@ -28,6 +29,7 @@ class Bounds3
     }
 
     Vector3f Diagonal() const { return pMax - pMin; }
+    // maxExtent会用在使用哪个轴来进行分割？
     int maxExtent() const
     {
         Vector3f d = Diagonal();
@@ -44,17 +46,18 @@ class Bounds3
         Vector3f d = Diagonal();
         return 2 * (d.x * d.y + d.x * d.z + d.y * d.z);
     }
-
+    // (pMin + pMax) / 2
     Vector3f Centroid() { return 0.5 * pMin + 0.5 * pMax; }
-    Bounds3 Intersect(const Bounds3& b)
+    // 求两个盒子的交集
+    Bounds3 Intersect(const Bounds3 &b)
     {
         return Bounds3(Vector3f(fmax(pMin.x, b.pMin.x), fmax(pMin.y, b.pMin.y),
                                 fmax(pMin.z, b.pMin.z)),
                        Vector3f(fmin(pMax.x, b.pMax.x), fmin(pMax.y, b.pMax.y),
                                 fmin(pMax.z, b.pMax.z)));
     }
-
-    Vector3f Offset(const Vector3f& p) const
+    // 没有被调用到
+    Vector3f Offset(const Vector3f &p) const
     {
         Vector3f o = p - pMin;
         if (pMax.x > pMin.x)
@@ -65,49 +68,62 @@ class Bounds3
             o.z /= pMax.z - pMin.z;
         return o;
     }
-
-    bool Overlaps(const Bounds3& b1, const Bounds3& b2)
+    // 判断是否有重叠，每个轴都有重合的地方
+    bool Overlaps(const Bounds3 &b1, const Bounds3 &b2)
     {
         bool x = (b1.pMax.x >= b2.pMin.x) && (b1.pMin.x <= b2.pMax.x);
         bool y = (b1.pMax.y >= b2.pMin.y) && (b1.pMin.y <= b2.pMax.y);
         bool z = (b1.pMax.z >= b2.pMin.z) && (b1.pMin.z <= b2.pMax.z);
         return (x && y && z);
     }
-
-    bool Inside(const Vector3f& p, const Bounds3& b)
+    // 判断p是否在盒子里面
+    bool Inside(const Vector3f &p, const Bounds3 &b)
     {
         return (p.x >= b.pMin.x && p.x <= b.pMax.x && p.y >= b.pMin.y &&
                 p.y <= b.pMax.y && p.z >= b.pMin.z && p.z <= b.pMax.z);
     }
-    inline const Vector3f& operator[](int i) const
+    inline const Vector3f &operator[](int i) const
     {
         return (i == 0) ? pMin : pMax;
     }
 
-    inline bool IntersectP(const Ray& ray, const Vector3f& invDir,
-                           const std::array<int, 3>& dirisNeg) const;
+    inline bool IntersectP(const Ray &ray, const Vector3f &invDir,
+                           const std::array<int, 3> &dirisNeg) const;
 };
 
-
-
-inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir,
-                                const std::array<int, 3>& dirIsNeg) const
+/**
+ * @brief 
+ * 
+ * @param ray 
+ * @param invDir 
+ * @param dirIsNeg ??怎么用这个值去简化逻辑
+ * @return true 
+ * @return false 
+ */
+inline bool Bounds3::IntersectP(const Ray &ray, const Vector3f &invDir,
+                                const std::array<int, 3> &dirIsNeg) const
 {
     // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster that Division
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
-    
+    Vector3f tmin = (pMin - ray.origin) * invDir, tmax = (pMax - ray.origin) * invDir;
+    float tenter = fmax(fmax(tmin.x, tmin.y), tmin.z), texit = fmin(fmin(tmax.x, tmax.y), tmax.z);
+    if( tenter < texit && texit >= 0 ){
+        return true;
+    }
+    return false;
 }
 
-inline Bounds3 Union(const Bounds3& b1, const Bounds3& b2)
+inline Bounds3 Union(const Bounds3 &b1, const Bounds3 &b2)
 {
     Bounds3 ret;
+    // 取两个点里面的所有维度里面的最小值
     ret.pMin = Vector3f::Min(b1.pMin, b2.pMin);
     ret.pMax = Vector3f::Max(b1.pMax, b2.pMax);
     return ret;
 }
 
-inline Bounds3 Union(const Bounds3& b, const Vector3f& p)
+inline Bounds3 Union(const Bounds3 &b, const Vector3f &p)
 {
     Bounds3 ret;
     ret.pMin = Vector3f::Min(b.pMin, p);

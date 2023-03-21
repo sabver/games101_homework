@@ -13,6 +13,7 @@ struct Intersection
 {
     Intersection(){
         happened=false;
+        // 交点坐标
         coords=Vector3f();
         normal=Vector3f();
         distance= std::numeric_limits<double>::max();
