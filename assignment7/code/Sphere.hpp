@@ -77,8 +77,19 @@ public:
         return Bounds3(Vector3f(center.x-radius, center.y-radius, center.z-radius),
                        Vector3f(center.x+radius, center.y+radius, center.z+radius));
     }
+    /**
+     * @brief 在该圆上随机进行采样，把采样的点的信息记录到pos，默认是均匀采样，所以pdf等于1/area。
+     * 
+     * @param pos 
+     * @param pdf 
+     */
     void Sample(Intersection &pos, float &pdf){
+        // 球坐标做法 theta（0 ≤ φ < 2π）是从原点到P点的连线在xy-平面的投影线，与正x-轴的夹角
+        // phi（0 ≤ θ ≤ π）是从原点到P点的连线与正z-轴的夹角
+        // r = radius
+        // (r, phi, theta)
         float theta = 2.0 * M_PI * get_random_float(), phi = M_PI * get_random_float();
+        // 这里dir表达的可能有点奇怪，不过结果上来说是均匀分布的向量
         Vector3f dir(std::cos(phi), std::sin(phi)*std::cos(theta), std::sin(phi)*std::sin(theta));
         pos.coords = center + radius * dir;
         pos.normal = dir;

@@ -28,10 +28,16 @@ inline  bool solveQuadratic(const float &a, const float &b, const float &c, floa
     return true;
 }
 
+/**
+ * @brief Get the random float object
+ * 
+ * @return float [0, 1]
+ */
 inline float get_random_float()
 {
     std::random_device dev;
     std::mt19937 rng(dev());
+    // 产生均匀分布在区间 [a, b) 上的随机浮点值 i 
     std::uniform_real_distribution<float> dist(0.f, 1.f); // distribution in range [1, 6]
 
     return dist(rng);

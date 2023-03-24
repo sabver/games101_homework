@@ -75,6 +75,7 @@ private:
         Vector3f B, C;
         if (std::fabs(N.x) > std::fabs(N.y)){
             float invLen = 1.0f / std::sqrt(N.x * N.x + N.z * N.z);
+            // 强行构建一个和N垂直的变量C
             C = Vector3f(N.z * invLen, 0.0f, -N.x *invLen);
         }
         else {
@@ -82,6 +83,8 @@ private:
             C = Vector3f(0.0f, N.z * invLen, -N.y *invLen);
         }
         B = crossProduct(C, N);
+        // 把N看作局部坐标系里面的Z，之后构建出相互垂直的B与C出来即可
+        // 然后a与(B, C, N)相乘就是切换坐标系表示
         return a.x * B + a.y * C + a.z * N;
     }
 
@@ -128,16 +131,27 @@ Vector3f Material::getColorAt(double u, double v) {
     return Vector3f();
 }
 
-
+/**
+ * @brief 
+ * 按照该材质的性质，给定入射方向与法向量，用某种分布采样一个出射方向。
+ * 另外，这里的实现里面，出射方向和入射方向无关
+ * @param wi 入射角度
+ * @param N  法向量
+ * @return Vector3f 
+ */
 Vector3f Material::sample(const Vector3f &wi, const Vector3f &N){
     switch(m_type){
+        // 扩散
         case DIFFUSE:
         {
             // uniform sample on the hemisphere
             float x_1 = get_random_float(), x_2 = get_random_float();
+            // [0, 1]意义何在？直接z=x_1不就行了？因为是半球体，所以z的取值大于0
             float z = std::fabs(1.0f - 2.0f * x_1);
+            // r这里是为了维持圆的半径为radius
             float r = std::sqrt(1.0f - z * z), phi = 2 * M_PI * x_2;
             Vector3f localRay(r*std::cos(phi), r*std::sin(phi), z);
+            // 上面生存的localRay是居于圆心为原点的假设计算出来的向量，需要转化为世界坐标
             return toWorld(localRay, N);
             
             break;
@@ -145,6 +159,15 @@ Vector3f Material::sample(const Vector3f &wi, const Vector3f &N){
     }
 }
 
+/**
+ * @brief 
+ * 给定一对入射、出射方向与法向量，计算 sample 方法得到该出射方向的概率密度。
+ * 固定是1 / (2 * PI)
+ * @param wi 
+ * @param wo 
+ * @param N 
+ * @return float 
+ */
 float Material::pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
     switch(m_type){
         case DIFFUSE:
@@ -159,6 +182,14 @@ float Material::pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
     }
 }
 
+/**
+ * @brief 
+ * 给定一对入射、出射方向与法向量，计算这种情况下的 f_r 值
+ * @param wi 
+ * @param wo 
+ * @param N 
+ * @return Vector3f 
+ */
 Vector3f Material::eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
     switch(m_type){
         case DIFFUSE:
@@ -166,6 +197,7 @@ Vector3f Material::eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &
             // calculate the contribution of diffuse   model
             float cosalpha = dotProduct(N, wo);
             if (cosalpha > 0.0f) {
+                // 固定值，这个值的设定理由是？
                 Vector3f diffuse = Kd / M_PI;
                 return diffuse;
             }
