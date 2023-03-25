@@ -70,7 +70,7 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
 {
     // TO DO Implement Path Tracing Algorithm here
 
-    // 点p 
+    // 点p p_inter
     Intersection obj_pos = intersect(ray);   
 
     // 如果没有hit到物体，那就直接结束
@@ -83,7 +83,7 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
     }
 
     float light_pdf;
-    Intersection light_pos;
+    Intersection light_pos; // x_inter
     // 从光源点进行采样，采样出来的点有可能没法和点p相同（中间有阻碍物）
     sampleLight(light_pos, light_pdf);
 
@@ -96,12 +96,14 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
     // NN 光源点的Normal
 
     // 光源的点是light_pos.coords, 追踪的物体的坐标是obj_pos.coords, ws是从光源点出发到物体坐标的向量
+    // Vector3f ws_dir = (x - p).normalized(); 
+    // 这里的反过来了？
     Vector3f ws = (obj_pos.coords - light_pos.coords).normalized();
     Vector3f wo = -ray.direction;
     Vector3f N = obj_pos.normal.normalized(), NN = light_pos.normal.normalized();
-    float ws_distance = ws.norm();
+    float ws_distance = (obj_pos.coords - light_pos.coords).norm();
 
-    // TODO 这里需要判断一个逻辑，这两点之间是否有物体遮挡
+    // 这里需要判断一个逻辑，这两点之间是否有物体遮挡
     float EPLISON = 0.0001;
     Ray ray_test(obj_pos.coords, -ws);
     Intersection ws_ray_inter = intersect(ray_test);
@@ -110,13 +112,15 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
     // emit * eval() * dot(ws, N) * dot(ws, NN)/|x-p|^2/pdf_light
     Vector3f L_dir = Vector3f(0.0, 0.0, 0.0);
     if(ws_ray_inter.distance - ws_distance > -EPLISON) {
+        // p_inter.m->eval(ray.direction, ws_ray.direction, N)
        L_dir = light_pos.emit * obj_pos.m->eval(ws, wo, N) * dotProduct(ws, NN) * dotProduct(-ws, N) / std::pow(ws_distance, 2) / light_pdf; 
     }
     
     // 俄罗斯转盘做法
     float ksi = get_random_float();
     if( ksi > RussianRoulette ){
-        return Vector3f(0.0, 0.0, 0.0);
+        // 这里之前我返回了Vector3f(0.0, 0.0, 0.0)，虽然对结果影响不大，但是从逻辑上确实是错的
+        return L_dir;
     }
 
     Vector3f L_indir = Vector3f(0.0, 0.0, 0.0);
